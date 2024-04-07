@@ -1,5 +1,6 @@
 import json
 import os
+from collections import OrderedDict
 
 def load_data():
     # Получаем текущую директорию скрипта
@@ -19,17 +20,32 @@ def load_data():
 data = load_data()
 
 def executed_operation(data):
-    executed_list = {}
-    for i in data:
-        if 'state' in i and i['state'] == 'EXECUTED':
-            executed_list.update(i)
+    executed_list = []
+    for item in data:
+        if 'state' in item and item['state'] == 'EXECUTED':
+            executed_list.append(item)
+
+    return executed_list
 
 
-    print(executed_list)
+executed_list = executed_operation(data)
 
-executed = executed_operation(data)
+print(executed_list)
 
-# def sorted_by_date():
+print(executed_list[1]['state'])
+
+def sorted_by_date(executed_list):
+    for i in executed_list:
+        i['date'] = i['date'][:-7].split('T')
+
+    sorted_dict = sorted(executed_list, key=lambda x: x['date'], reverse=True)
+
+    return sorted_dict[:5]
+
+sorted_dict = sorted_by_date(executed_list)
+
+print(len(sorted_dict))
+
 
 
 # if __name__ == '__main__':
