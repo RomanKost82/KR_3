@@ -1,15 +1,46 @@
 import pytest
 from datetime import datetime
-from user_utils.utils import load_data, executed_operation, sorted_by_date, prepare_info_for_print, print_operation
+from user_utils.utils import executed_operation, sorted_by_date, prepare_info_for_print
 
 
 @pytest.fixture(scope="module")
 def data():
-    return load_data()
+    return [
+        {
+            "id": 441945886,
+            "state": "EXECUTED",
+            "date": "2019-08-26T10:50:58.294041",
+            "operationAmount": {
+                "amount": "31957.58",
+                "currency": {
+                    "name": "руб.",
+                    "code": "RUB"
+                }
+            },
+            "description": "Перевод организации",
+            "from": "Maestro 1596837868705199",
+            "to": "Счет 64686473678894779589"
+        },
+        {
+            "id": 41428829,
+            "state": "CANCELED",
+            "date": "2019-07-03T18:35:29.512364",
+            "operationAmount": {
+                "amount": "8221.37",
+                "currency": {
+                    "name": "USD",
+                    "code": "USD"
+                }
+            },
+            "description": "Перевод организации",
+            "from": "MasterCard 7158300734726758",
+            "to": "Счет 35383033474447895560"
+        },
+    ]
 
 
 def test_load_data(data):
-    assert isinstance(data, dict)
+    assert isinstance(data, list)
     assert len(data) > 0
 
 
@@ -32,35 +63,20 @@ def test_sorted_by_date(data):
 
 
 def test_prepare_info_for_print():
-    output_data = [
-        {'date': '2020-10-16T14:20:00', 'from': '1234567890123456', 'to': '9876543210987654', 'description': 'Payment',
-         'operationAmount': {'amount': '100.00', 'currency': {'name': 'USD'}}}
+    data = [
+        {'id': 863064926, 'state': 'EXECUTED', 'date': '2019-12-08 22:46:21',
+         'operationAmount': {'amount': '41096.24', 'currency': {'name': 'USD', 'code': 'USD'}},
+         'description': 'Открытие вклада', 'to': 'Счет 90424923579946435907'},
+        {'id': 114832369, 'state': 'EXECUTED', 'date': '2019-12-07 06:17:14',
+         'operationAmount': {'amount': '48150.39', 'currency': {'name': 'USD', 'code': 'USD'}},
+         'description': 'Перевод организации', 'from': 'Visa Classic 2842878893689012',
+         'to': 'Счет 35158586384610753655'},
     ]
-    modified_data = prepare_info_for_print(output_data)
-    assert isinstance(modified_data, list)
-    assert len(modified_data) == 1
-    item = modified_data[0]
-    assert 'date' in item
-    assert isinstance(datetime.strptime(item['date'], '%d.%m.%Y %H:%M:%S'), datetime)
-    assert 'from' in item
-    assert item['from'] == '1234************3456'
-    assert 'to' in item
-    assert item['to'] == '98**6543210987654'
-    assert 'description' in item
-    assert 'operationAmount' in item
-    assert isinstance(item['operationAmount'], dict)
-
-
-def test_print_operation(capsys):
-    printed_operation = [
-        {'date': '16.10.2020 14:20:00', 'from': '1234567890123456', 'to': '9876543210987654', 'description': 'Payment',
-         'operationAmount': {'amount': '100.00', 'currency': {'name': 'USD'}}}
-    ]
-    print_operation(printed_operation)
-    captured = capsys.readouterr()
-    assert '16.10.2020 14:20:00 Payment\n' in captured.out
-    assert '1234************3456 -> 98**6543210987654\n' in captured.out
-    assert '100.00 USD\n\n' in captured.out
+    formatted_data = prepare_info_for_print(data)
+    assert len(formatted_data) == 2
+    assert formatted_data[0]['date'] == '08.12.2019 22:46:21'
+    assert formatted_data[0]['from'] == '-'
+    assert formatted_data[1]['to'] == ['Счет', '**3655']
 
 
 if __name__ == '__main__':

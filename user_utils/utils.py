@@ -23,9 +23,6 @@ def load_data():
     return data_operations
 
 
-data = load_data()
-
-
 def executed_operation(data_dict):
     """
     Формируем список словарей выполненных операций
@@ -34,13 +31,10 @@ def executed_operation(data_dict):
     """
     executed_list = []
     for item in data_dict:
-        if 'state' in item and item['state'] == 'EXECUTED':
+        if item.get('state') == 'EXECUTED':
             executed_list.append(item)
 
     return executed_list
-
-
-executed_state_list = executed_operation(data)
 
 
 def sorted_by_date(executed_list):
@@ -50,21 +44,18 @@ def sorted_by_date(executed_list):
     :param executed_list: list
     :return: dict
     """
-    for i in executed_list:
-        i['date'] = ' '.join(i['date'][:-7].split('T'))
+    for operation in executed_list:
+        operation['date'] = ' '.join(operation['date'][:-7].split('T'))
 
     sorted_dict = sorted(executed_list, key=lambda x: x['date'], reverse=True)
 
     return sorted_dict[:5]
 
 
-sorted_dict_list = sorted_by_date(executed_state_list)
-
-
 def prepare_info_for_print(output_data):
     """
     Форматируем данные словаря в требуемый вид для вывода
-    :param output_data: dict
+    :param output_data: list
     :return: dict
     """
     for i in output_data:
@@ -90,23 +81,3 @@ def prepare_info_for_print(output_data):
             i['to'] = '-'
 
     return output_data
-
-
-modify_operation_dict = prepare_info_for_print(sorted_dict_list)
-
-
-def print_operation(printed_operation):
-    """
-    Вывод последних 5-и операций
-    :param printed_operation: dict
-    :return: None
-    """
-    for i in printed_operation:
-        print(f'{i['date']} {i['description']}')
-        print(f'{' '.join(i['from'])} -> {' '.join(i['to'])}')
-
-        print(f'{i['operationAmount']['amount']} {i['operationAmount']['currency']['name']}')
-        print()
-
-
-print_operation(modify_operation_dict)
